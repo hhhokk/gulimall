@@ -8,6 +8,7 @@
 
 package com.common.utils;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.http.HttpStatus;
 
 import java.util.HashMap;

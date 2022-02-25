@@ -1,19 +1,14 @@
 package com.gulimall.product.controller;
 
 import java.util.Arrays;
-import java.util.Map;
-
-//import org.apache.shiro.authz.annotation.RequiresPermissions;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.gulimall.product.entity.CategoryEntity;
 import com.gulimall.product.service.CategoryService;
-import com.common.utils.PageUtils;
 import com.common.utils.R;
 
 
@@ -32,14 +27,14 @@ public class CategoryController {
     private CategoryService categoryService;
 
     /**
-     * 列表
+     * 查出所有分类以及子分类，以树形列表显示
      */
-    @RequestMapping("/list")
+    @RequestMapping("/list/tree")
 //    @RequiresPermissions("product:category:list")
-    public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = categoryService.queryPage(params);
+    public R list(){
+        List<CategoryEntity> entities= categoryService.listWithTree();
 
-        return R.ok().put("page", page);
+        return R.ok().put("date", entities);
     }
 
 
