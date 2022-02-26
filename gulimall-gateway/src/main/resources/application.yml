@@ -2,12 +2,19 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: test-route
-          uri: https://www.baidu.com
+##此块的负载均衡的模块名要与nacos中一致，不然无法转到对应的模块中
+        - id: product_route
+          uri: lb://gulimall-product
           predicates:
-            - Query=url,baidu
+            - Path=/api/product/**
+          filters:
+            - RewritePath=/api/(?<segment>.*),/$\{segment}
 
-        - id: qq-route
-          uri: https://www.qq.com
+        - id: admin_route
+          uri: lb://renren-fast
           predicates:
-            - Query=url,qq
+            - Path=/api/**
+          filters:
+            - RewritePath=/api/(?<segment>.*),/renren-fast/$\{segment}
+
+
