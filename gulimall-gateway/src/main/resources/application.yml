@@ -1,12 +1,29 @@
+server:
+  port: 88
+
 spring:
+  application:
+    name: gulimall-gateway
   cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+
     gateway:
       routes:
-##此块的负载均衡的模块名要与nacos中一致，不然无法转到对应的模块中
-        - id: product_route
+
+        - id: product
           uri: lb://gulimall-product
           predicates:
             - Path=/api/product/**
+          filters:
+            - RewritePath=/api/(?<segment>.*),/$\{segment}
+
+
+        - id: third-party
+          uri: lb://gulimall-third-party
+          predicates:
+            - Path=/api/thirdparty/**
           filters:
             - RewritePath=/api/(?<segment>.*),/$\{segment}
 
@@ -16,5 +33,6 @@ spring:
             - Path=/api/**
           filters:
             - RewritePath=/api/(?<segment>.*),/renren-fast/$\{segment}
+
 
 

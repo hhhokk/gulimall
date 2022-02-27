@@ -6,9 +6,8 @@
  * 版权所有，侵权必究！
  */
 
-package com.common.utils;
+package com.gulimall.common.utils;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.http.HttpStatus;
 
 import java.util.HashMap;

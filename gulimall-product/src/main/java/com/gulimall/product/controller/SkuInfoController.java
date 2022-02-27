@@ -1,7 +1,7 @@
 package com.gulimall.product.controller;
 
-import com.common.utils.PageUtils;
-import com.common.utils.R;
+import com.gulimall.common.utils.PageUtils;
+import com.gulimall.common.utils.R;
 import com.gulimall.product.entity.SkuInfoEntity;
 import com.gulimall.product.service.SkuInfoService;
 import org.springframework.beans.factory.annotation.Autowired;

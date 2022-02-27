@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.gulimall.ware.entity.WareSkuEntity;
 import com.gulimall.ware.service.WareSkuService;
-import com.common.utils.PageUtils;
-import com.common.utils.R;
+import com.gulimall.common.utils.PageUtils;
+import com.gulimall.common.utils.R;
 
 
 

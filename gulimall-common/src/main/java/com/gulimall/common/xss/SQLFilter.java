@@ -6,9 +6,9 @@
  * 版权所有，侵权必究！
  */
 
-package com.common.xss;
+package com.gulimall.common.xss;
 
-import com.common.exception.RRException;
+import com.gulimall.common.exception.RRException;
 import org.apache.commons.lang.StringUtils;
 
 /**

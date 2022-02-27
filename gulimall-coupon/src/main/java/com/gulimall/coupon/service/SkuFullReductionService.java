@@ -1,7 +1,7 @@
 package com.gulimall.coupon.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.common.utils.PageUtils;
+import com.gulimall.common.utils.PageUtils;
 import com.gulimall.coupon.entity.SkuFullReductionEntity;
 
 import java.util.Map;

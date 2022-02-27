@@ -1,7 +1,7 @@
 package com.gulimall.order.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.common.utils.PageUtils;
+import com.gulimall.common.utils.PageUtils;
 import com.gulimall.order.entity.OrderReturnApplyEntity;
 
 import java.util.Map;

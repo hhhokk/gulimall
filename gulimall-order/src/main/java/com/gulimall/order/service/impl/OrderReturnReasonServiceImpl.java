@@ -5,8 +5,8 @@ import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.common.utils.PageUtils;
-import com.common.utils.Query;
+import com.gulimall.common.utils.PageUtils;
+import com.gulimall.common.utils.Query;
 
 import com.gulimall.order.dao.OrderReturnReasonDao;
 import com.gulimall.order.entity.OrderReturnReasonEntity;

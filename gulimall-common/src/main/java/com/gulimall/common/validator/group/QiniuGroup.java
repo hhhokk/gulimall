@@ -6,7 +6,7 @@
  * 版权所有，侵权必究！
  */
 
-package com.common.validator.group;
+package com.gulimall.common.validator.group;
 
 /**
  * 七牛

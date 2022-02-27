@@ -6,10 +6,10 @@
  * 版权所有，侵权必究！
  */
 
-package com.common.utils;
-import com.common.validator.group.QcloudGroup;
-import com.common.validator.group.AliyunGroup;
-import com.common.validator.group.QiniuGroup;
+package com.gulimall.common.utils;
+import com.gulimall.common.validator.group.QcloudGroup;
+import com.gulimall.common.validator.group.AliyunGroup;
+import com.gulimall.common.validator.group.QiniuGroup;
 
 import java.util.Optional;
 import java.util.stream.Stream;
