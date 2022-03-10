@@ -1,8 +1,10 @@
 package com.gulimall.product.service.impl;
 
+import org.bouncycastle.util.Arrays;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -82,6 +84,23 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         baseMapper.deleteBatchIds(asList);
     }
 
+    @Override
+    public Long[] findCatelogPath(Long attrGroupId) {
+        List<Long> longs = new ArrayList<>();
+        List<Long> catelogPath = findCatelogPath(attrGroupId, longs);
+        Collections.reverse(catelogPath);
+        return catelogPath.toArray(new Long[longs.size()]);
+    }
+
+    private List<Long> findCatelogPath(Long attrGroupId,List<Long> paths){
+        paths.add(attrGroupId);
+        Long parentCid = baseMapper.selectById(attrGroupId).getParentCid();
+        if(parentCid != 0){
+            findCatelogPath(parentCid, paths);
+        }
+
+        return paths;
+    }
 
 
 }

@@ -11,6 +11,7 @@ import com.gulimall.common.utils.Query;
 import com.gulimall.product.dao.AttrGroupDao;
 import com.gulimall.product.entity.AttrGroupEntity;
 import com.gulimall.product.service.AttrGroupService;
+import org.springframework.util.StringUtils;
 
 
 @Service("attrGroupService")
@@ -24,6 +25,28 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
         );
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public PageUtils queryPage(Map<String, Object> params, long catId) {
+        if(catId==0){
+            return queryPage(params);
+        }else{
+            String key = (String) params.get("key");
+            QueryWrapper<AttrGroupEntity> wrapper = new QueryWrapper<AttrGroupEntity>().eq("catelog_id",catId);
+            //select * from pms_attr_group where catelog_id=? and( attr_group_id=key or attr_group_name like %key%)
+            if(!StringUtils.isEmpty(key)){
+                wrapper.and(item->
+                    item.eq("attr_group_id",key).or().like("attr_group_name",key)
+                );
+            }
+            IPage<AttrGroupEntity> page = this.page(
+                    new Query<AttrGroupEntity>().getPage(params),
+                    wrapper
+            );
+
+            return new PageUtils(page);
+        }
     }
 
 }
