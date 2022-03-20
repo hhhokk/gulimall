@@ -9,10 +9,8 @@ import com.gulimall.product.entity.AttrEntity;
 import com.gulimall.product.service.AttrService;
 import com.gulimall.product.service.CategoryService;
 import com.gulimall.product.vo.AttrGroupRelationVo;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import com.gulimall.product.entity.AttrGroupEntity;
 import com.gulimall.product.service.AttrGroupService;
 import com.gulimall.common.utils.PageUtils;
@@ -39,6 +37,14 @@ public class AttrGroupController {
     @Autowired
     private AttrService attrService;
 
+    //localhost:88/api/product/attrgroup/attr/relation
+    @PostMapping("/attr/relation")
+    public R addAttrRelation(@RequestBody AttrGroupRelationVo[] vos) {
+        attrService.attrRelation(vos);
+        return R.ok();
+    }
+
+
     //localhost:88/api/product/attrgroup/attr/relation/delete
     @PostMapping("/attr/relation/delete")
     public R relationDelete(@RequestBody AttrGroupRelationVo[] vos){
@@ -51,6 +57,13 @@ public class AttrGroupController {
     public R attrRelation(@PathVariable("attrgroupId") Long attrgroupId){
          List<AttrEntity> attrEntities = attrService.queryAttrRelation(attrgroupId);
         return R.ok().put("data",attrEntities);
+    }
+
+    @GetMapping("/{attrgroupId}/noattr/relation")
+    public R attrNoRelation(@PathVariable("attrgroupId") Long attrgroupId,
+                            @RequestParam Map<String, Object> params){
+        PageUtils page = attrService.queryAttrNoRelation(attrgroupId,params);
+        return R.ok().put("page",page);
     }
 
     /**

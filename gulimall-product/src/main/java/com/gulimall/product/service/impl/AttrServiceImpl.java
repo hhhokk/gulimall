@@ -66,7 +66,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         //1.保存基本数据
         baseMapper.insert(entity);
         //保存关联关系
-        if(attr.getAttrType()==ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode()){
+        if(attr.getAttrType()==ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode() && attr.getAttrGroupId() != null){
             AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
             relationEntity.setAttrId(attr.getAttrId());
             relationEntity.setAttrGroupId(attr.getAttrGroupId());
@@ -98,7 +98,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             //设置分类和分组的名字
             if("base".equalsIgnoreCase(attrType)){
                 AttrAttrgroupRelationEntity attrId = attrgroupRelationService.getOne(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId()));
-                if (attrId != null) {
+                if (attrId != null && attrId.getAttrGroupId() != null) {
                     AttrGroupEntity entity = attrGroupService.getById(attrId.getAttrGroupId());
                     attrRespVo.setGroupName(entity.getAttrGroupName());
                 }
@@ -182,11 +182,11 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 //        }
 
         List<Long> attrIds = new ArrayList<>();
-        if(attrIds == null || attrIds.size() ==0){
-            return null;
-        }
         for (AttrAttrgroupRelationEntity entity : list) {
             attrIds.add(entity.getAttrId());
+        }
+        if(attrIds == null || attrIds.size() ==0){
+            return null;
         }
         List<AttrEntity> attrEntities = baseMapper.selectBatchIds(attrIds);
 
@@ -217,6 +217,63 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         */
 
         relationDao.removeBatchList(attrEntities);
+    }
+
+    /**
+     * 获取当前分组没有关联的所有属性
+     * @param attrgroupId
+     * @param params
+     * @return
+     */
+    @Override
+    public PageUtils queryAttrNoRelation(Long attrgroupId, Map<String, Object> params) {
+        //1.当前分组只能关联自己所属的分类里面的所有属性
+        AttrGroupEntity groupEntity = attrGroupService.getById(attrgroupId);
+        Long catelogId = groupEntity.getCatelogId();
+        //2.当前分组只能关联别的分组没有引用的属性
+        //2.1)当前分类下的其他分组
+        List<AttrGroupEntity> groupEntities = attrGroupService.list(
+                new QueryWrapper<AttrGroupEntity>().eq("catelog_id", catelogId));
+        //2.2)这些分组关联的属性
+        //获得关联关系中的attrGroupIds集合
+        List<Long> attrGroupIds = groupEntities.stream().map((item) -> {
+            return item.getAttrGroupId();
+        }).collect(Collectors.toList());
+        List<AttrAttrgroupRelationEntity> relationEntityList = attrgroupRelationService.list(
+                new QueryWrapper<AttrAttrgroupRelationEntity>().in("attr_group_id", attrGroupIds));
+
+        List<Long> attrIds = relationEntityList.stream().map(item -> {
+            return item.getAttrId();
+        }).collect(Collectors.toList());
+
+        //2.3)从当前分类的所有属性表中移除这些属性
+        QueryWrapper<AttrEntity> wrapper = new QueryWrapper<AttrEntity>().eq("catelog_id", catelogId).eq("attr_type",ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode());
+        if(attrIds!=null && attrIds.size()>0){
+            wrapper.notIn("attr_id", attrIds);
+        }
+        String key = (String) params.get("key");
+        if(!StringUtils.isEmpty(key)){
+            wrapper.and((w)->{
+                w.eq("attr_id",key).or().like("attr_name",key);
+            });
+        }
+        IPage<AttrEntity> page = this.page(
+                new Query<AttrEntity>().getPage(params),
+                wrapper);
+        PageUtils pageUtils = new PageUtils(page);
+        return pageUtils;
+    }
+
+    @Override
+    public void attrRelation(AttrGroupRelationVo[] vos) {
+        ArrayList<AttrAttrgroupRelationEntity> attrEntities = new ArrayList<>();
+        for (AttrGroupRelationVo vo : Arrays.asList(vos)) {
+            AttrAttrgroupRelationEntity attrEntity = new AttrAttrgroupRelationEntity();
+            BeanUtils.copyProperties(vo,attrEntity);
+            attrEntities.add(attrEntity);
+        }
+
+        attrgroupRelationService.saveBatch(attrEntities);
     }
 
 

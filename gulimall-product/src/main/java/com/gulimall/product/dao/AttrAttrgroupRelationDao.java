@@ -19,4 +19,6 @@ import java.util.ArrayList;
 public interface AttrAttrgroupRelationDao extends BaseMapper<AttrAttrgroupRelationEntity> {
 
     void removeBatchList(@Param("attrEntities") ArrayList<AttrAttrgroupRelationEntity> attrEntities);
+
+
 }
