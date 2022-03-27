@@ -1,11 +1,15 @@
 package com.gulimall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.gulimall.common.utils.PageUtils;
 import com.gulimall.common.utils.R;
+import com.gulimall.product.entity.BrandEntity;
+import com.gulimall.product.vo.BrandVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,9 +36,14 @@ public class CategoryBrandRelationController {
     @GetMapping("/brands/list")
 //    @RequiresPermissions("product:categorybrandrelation:list")
     public R relationBrandsList(@RequestParam(value ="catId") Long catId){
-        PageUtils page = categoryBrandRelationService.queryPage();
-
-        return R.ok().put("page", page);
+        List<BrandEntity> vos = categoryBrandRelationService.getBrandByCatId(catId);
+        List<BrandVo> collect = vos.stream().map(vo -> {
+            BrandVo brandVo = new BrandVo();
+            brandVo.setBrandId(vo.getBrandId());
+            brandVo.setBrandName(vo.getName());
+            return brandVo;
+        }).collect(Collectors.toList());
+        return R.ok().put("data", collect);
     }
     /**
      * 列表
