@@ -1,12 +1,16 @@
 package com.gulimall.product.service.impl;
 
+import com.gulimall.product.vo.Catelog2LevelVo;
 import org.bouncycastle.util.Arrays;
 import org.springframework.stereotype.Service;
 
+import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -100,6 +104,61 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         }
 
         return paths;
+    }
+
+
+    @Override
+    public List<CategoryEntity> getLevelOneCategory() {
+        List<CategoryEntity> categoryEntities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
+        return categoryEntities;
+    }
+
+    @Override
+    public Map<String, List<Catelog2LevelVo>> getCatelogJson() {
+        List<CategoryEntity> levelOneCategory = getLevelOneCategory(); //查出一级分类
+
+        //查出二级分类
+        List<CategoryEntity> category2Entities = baseMapper
+                .selectList(new QueryWrapper<CategoryEntity>().eq("cat_level", 2));
+
+        //查出三级分类
+        List<CategoryEntity> category3Entities = baseMapper
+                .selectList(new QueryWrapper<CategoryEntity>().eq("cat_level", 3));
+
+        //封装成三级分类vo
+        List<Catelog2LevelVo.Catelog3LevelVo> catelog3LevelVoList = category3Entities.stream().map(item -> {
+            Catelog2LevelVo.Catelog3LevelVo catelog3LevelVo = new Catelog2LevelVo.Catelog3LevelVo();
+            catelog3LevelVo.setId(item.getCatId().toString());
+            catelog3LevelVo.setCatalog2Id(item.getParentCid().toString());
+            catelog3LevelVo.setName(item.getName());
+            return catelog3LevelVo;
+        }).collect(Collectors.toList());
+
+        //封装成二级分类vo
+        List<Catelog2LevelVo> catelog2LevelVoList = category2Entities.stream().map(item -> {
+            ArrayList<Catelog2LevelVo.Catelog3LevelVo> catelog3LevelVosList = new ArrayList<>();
+            for (Catelog2LevelVo.Catelog3LevelVo catelog3LevelVo : catelog3LevelVoList) {
+                if (Long.valueOf(catelog3LevelVo.getCatalog2Id()) == item.getCatId()) {
+                    catelog3LevelVosList.add(catelog3LevelVo);
+                }
+            }
+            Catelog2LevelVo catelog2LevelVo = new Catelog2LevelVo();
+            catelog2LevelVo.setId(item.getCatId().toString());
+            catelog2LevelVo.setCatalog1Id(item.getParentCid().toString());
+            catelog2LevelVo.setName(item.getName());
+            catelog2LevelVo.setCatalog3List(catelog3LevelVosList);
+
+            return catelog2LevelVo;
+        }).collect(Collectors.toList());
+
+        //返回对应的map
+        Map<String, List<Catelog2LevelVo>> map = levelOneCategory.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+            List<Catelog2LevelVo> collect = catelog2LevelVoList.stream().filter(item -> {
+                return Long.valueOf(item.getCatalog1Id()) == v.getCatId();
+            }).collect(Collectors.toList());
+            return collect;
+        }));//对应的父id
+        return map;
     }
 
 

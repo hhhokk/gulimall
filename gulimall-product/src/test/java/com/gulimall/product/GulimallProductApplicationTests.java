@@ -2,16 +2,22 @@ package com.gulimall.product;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.gulimall.common.to.es.SkuEsModel;
+import com.gulimall.product.entity.AttrEntity;
 import com.gulimall.product.entity.BrandEntity;
+import com.gulimall.product.service.AttrService;
 import com.gulimall.product.service.BrandService;
 import com.gulimall.product.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.logging.stdout.StdOutImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.sound.midi.Soundbank;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +33,9 @@ public class GulimallProductApplicationTests {
     BrandService brandService;
     @Autowired
     CategoryService service;
+
+    @Autowired
+    AttrService attrService;
     @Test
     public void testFindPath(){
         Long[] catelogPath = service.findCatelogPath(225L);
@@ -72,5 +81,28 @@ public class GulimallProductApplicationTests {
         }
 
     }
+
+    @Test
+    public void test2(){
+        ArrayList<String> list = new ArrayList<>();
+        list.add("7");
+        list.add("8");
+        list.add("9");
+        list.add("10");
+        list.add("15");
+        List<AttrEntity> attrEntities = attrService.listByIds(list);
+
+        List<SkuEsModel.Attrs> attrsList = attrEntities.stream().filter(attrEntity -> {
+            return attrEntity.getSearchType() != 0;
+        }).map(attrEntity ->{
+            SkuEsModel.Attrs attrs = new SkuEsModel.Attrs();
+            BeanUtils.copyProperties(attrEntity,attrs);
+            attrs.setAttrValue(attrEntity.getValueSelect());
+            return attrs;
+        }).collect(Collectors.toList());
+        System.out.println(attrsList.toString());
+
+    }
+
 
 }

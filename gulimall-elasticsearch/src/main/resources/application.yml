@@ -8,4 +8,4 @@ spring:
     name: gulimall-elasticsearch
 
 server:
-  port: 9300
+  port: 14000

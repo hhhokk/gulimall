@@ -22,4 +22,21 @@ public class ProductConstant {
             return code;
         }
     }
+
+    public enum ProductStatusEnum{
+        PRODUCT_SPU_NEW(0,"新建状态"),
+        PRODUCT_SPU_UP(1,"商品上架"),
+        PRODUCT_SPU_DOWN(2,"商品下架");
+        private int code;
+        private String msg;
+
+        ProductStatusEnum(int code,String msg){
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+    }
 }

@@ -1,28 +1,28 @@
 package com.gulimall.product.service.impl;
 
+import com.gulimall.common.constant.ProductConstant;
 import com.gulimall.common.to.SkuReductionTo;
 import com.gulimall.common.to.SpuBoundTo;
+import com.gulimall.common.to.es.SkuEsModel;
 import com.gulimall.common.utils.R;
 import com.gulimall.product.entity.*;
 import com.gulimall.product.feign.CouponFeignService;
+import com.gulimall.product.feign.ElasticSearchFeignService;
+import com.gulimall.product.feign.WareFeignService;
 import com.gulimall.product.service.*;
 import com.gulimall.product.vo.spusavevo.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.awt.event.ItemEvent;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gulimall.common.utils.PageUtils;
 import com.gulimall.common.utils.Query;
-
 import com.gulimall.product.dao.SpuInfoDao;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -55,6 +55,21 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Autowired
     private CouponFeignService couponFeignService;
+
+    @Autowired
+    private BrandService brandService;
+
+    @Autowired
+    private CategoryService categoryService;
+
+    @Autowired
+    private ProductAttrValueService productAttrValueService;
+
+    @Autowired
+    private WareFeignService wareFeignService;
+
+    @Autowired
+    private ElasticSearchFeignService searchFeignService;
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<SpuInfoEntity> page = this.page(
@@ -212,6 +227,77 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 wrapper
         );
         return new PageUtils(page);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void up(Long spuId) {
+        //查询当前sku所有可以被检索的规格属性 attrs
+        //查出当前sku所有的属性
+        List<ProductAttrValueEntity> productAttrValueEntityList =
+                productAttrValueService.list(new QueryWrapper<ProductAttrValueEntity>().eq("spu_id", spuId));
+        List<Long> collect = productAttrValueEntityList.stream()
+                .map(ProductAttrValueEntity::getAttrId).collect(Collectors.toList());
+
+        //从所有attr中排除不可检索的属性
+        List<AttrEntity> attrEntities = attrService.listByIds(collect);
+
+        List<SkuEsModel.Attrs> attrsList = attrEntities.stream().filter(attrEntity -> {
+            return attrEntity.getSearchType() != 0;
+        }).map(attrEntity ->{
+            SkuEsModel.Attrs attrs = new SkuEsModel.Attrs();
+            BeanUtils.copyProperties(attrEntity,attrs);
+            attrs.setAttrValue(attrEntity.getValueSelect());
+            return attrs;
+        }).collect(Collectors.toList());
+
+
+        List<SkuInfoEntity> skuInfoEntityList = skuInfoService.getSkuBySpuId(spuId);
+        // 查询hasStock是否还有库存
+        List<Long> skuIds = skuInfoEntityList.stream().map(SkuInfoEntity::getSkuId).collect(Collectors.toList());
+        Map<String,Boolean> data = null;
+        try{
+            R hasStock = wareFeignService.getHasStock(skuIds);
+            data = (Map<String, Boolean>) hasStock.getData();
+        }catch (Exception e){
+            log.error("库存查询服务异常,原因{}",e);
+        }
+        Map<String, Boolean> finalData = data;
+
+        List<SkuEsModel> upProducts = skuInfoEntityList.stream().map(sku -> {
+            SkuEsModel skuEsModel = new SkuEsModel();
+            BeanUtils.copyProperties(sku,skuEsModel);
+            skuEsModel.setCategoryId(sku.getCatalogId());
+            skuEsModel.setSkuPrice(sku.getPrice());
+            skuEsModel.setSkuImg(sku.getSkuDefaultImg());
+            //  hotScore  hasStock  categoryName brandName brandImg
+
+            // 查询hasStock是否还有库存,先默认赋值为false
+            skuEsModel.setHasStock(false);
+
+            if (finalData != null && finalData.size() !=0){
+                Boolean aBoolean = finalData.get(String.valueOf(sku.getSkuId()));
+                skuEsModel.setHasStock(aBoolean);
+                finalData.remove(String.valueOf(sku.getSkuId()));
+            }
+
+
+
+            // 热度评分，默认0.
+            skuEsModel.setHotScore(0L);
+            skuEsModel.setCategoryName(categoryService.getById(sku.getCatalogId()).getName());
+            BrandEntity byId = brandService.getById(sku.getBrandId());
+            skuEsModel.setBrandName(byId.getName());
+            skuEsModel.setBrandImg(byId.getLogo());
+            skuEsModel.setAttrs(attrsList);
+
+            return skuEsModel;
+        }).collect(Collectors.toList());
+        R r = searchFeignService.productStatusUp(upProducts);
+        if (r.getCode() == 0 ){
+            //远程调用成功,修改上架的状态
+            baseMapper.updateSpuStatus(spuId, ProductConstant.ProductStatusEnum.PRODUCT_SPU_UP.getCode());
+        }
     }
 
 }

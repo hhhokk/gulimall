@@ -12,6 +12,11 @@
         <result property="skuName" column="sku_name"/>
         <result property="stockLocked" column="stock_locked"/>
     </resultMap>
-
+    <select id="selectListBySkuIds" resultType="com.gulimall.ware.entity.WareSkuEntity">
+        SELECT `stock`,`stock_locked`,`sku_id` FROM `wms_ware_sku` WHERE `sku_id` IN
+        <foreach collection="skuIds" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
 
 </mapper>

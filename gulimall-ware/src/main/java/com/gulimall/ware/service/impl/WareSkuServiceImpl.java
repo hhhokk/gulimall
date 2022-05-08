@@ -1,6 +1,8 @@
 package com.gulimall.ware.service.impl;
 
 import org.springframework.stereotype.Service;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -34,6 +36,18 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
         );
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public Map<String, Boolean> getHasStock(List<Long> skuIds) {
+        List<WareSkuEntity> wareSkuEntities  = baseMapper.selectListBySkuIds(skuIds);
+
+        HashMap<String, Boolean> stringBooleanHashMap = new HashMap<>();
+        for (WareSkuEntity entity : wareSkuEntities) {
+            int count = entity.getStock() - entity.getStockLocked();
+            stringBooleanHashMap.put(String.valueOf(entity.getSkuId()),count > 0);
+        }
+        return stringBooleanHashMap;
     }
 
 }

@@ -20,6 +20,13 @@ import java.util.Map;
  */
 public class R extends HashMap<String, Object> {
 	private static final long serialVersionUID = 1L;
+
+	public Object getData(){
+		return get("data");
+	}
+	public R setData(Object data){
+		return put("data",data);
+	}
 	
 	public R() {
 		put("code", 0);
