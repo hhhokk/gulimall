@@ -115,18 +115,16 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Override
     public Map<String, List<Catelog2LevelVo>> getCatelogJson() {
-        List<CategoryEntity> levelOneCategory = getLevelOneCategory(); //查出一级分类
 
-        //查出二级分类
-        List<CategoryEntity> category2Entities = baseMapper
-                .selectList(new QueryWrapper<CategoryEntity>().eq("cat_level", 2));
-
-        //查出三级分类
-        List<CategoryEntity> category3Entities = baseMapper
-                .selectList(new QueryWrapper<CategoryEntity>().eq("cat_level", 3));
+        List<CategoryEntity> categoryEntities = baseMapper
+                .selectList(new QueryWrapper<CategoryEntity>(null));
 
         //封装成三级分类vo
-        List<Catelog2LevelVo.Catelog3LevelVo> catelog3LevelVoList = category3Entities.stream().map(item -> {
+        List<Catelog2LevelVo.Catelog3LevelVo> catelog3LevelVoList = categoryEntities.stream()
+                .filter(item ->{
+                    return item.getCatLevel()==3L;
+                })
+                .map(item -> {
             Catelog2LevelVo.Catelog3LevelVo catelog3LevelVo = new Catelog2LevelVo.Catelog3LevelVo();
             catelog3LevelVo.setId(item.getCatId().toString());
             catelog3LevelVo.setCatalog2Id(item.getParentCid().toString());
@@ -135,7 +133,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         }).collect(Collectors.toList());
 
         //封装成二级分类vo
-        List<Catelog2LevelVo> catelog2LevelVoList = category2Entities.stream().map(item -> {
+        List<Catelog2LevelVo> catelog2LevelVoList = categoryEntities.stream()
+                .filter(item ->{
+                    return item.getCatLevel()==2L;
+                })
+                .map(item -> {
             ArrayList<Catelog2LevelVo.Catelog3LevelVo> catelog3LevelVosList = new ArrayList<>();
             for (Catelog2LevelVo.Catelog3LevelVo catelog3LevelVo : catelog3LevelVoList) {
                 if (Long.valueOf(catelog3LevelVo.getCatalog2Id()) == item.getCatId()) {
@@ -152,7 +154,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         }).collect(Collectors.toList());
 
         //返回对应的map
-        Map<String, List<Catelog2LevelVo>> map = levelOneCategory.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+        Map<String, List<Catelog2LevelVo>> map = categoryEntities.stream()
+                .filter(item ->{
+                    return item.getParentCid()==0L;
+                })
+                .collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
             List<Catelog2LevelVo> collect = catelog2LevelVoList.stream().filter(item -> {
                 return Long.valueOf(item.getCatalog1Id()) == v.getCatId();
             }).collect(Collectors.toList());
