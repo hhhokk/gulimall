@@ -160,10 +160,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                 })
                 .collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
             List<Catelog2LevelVo> collect = catelog2LevelVoList.stream().filter(item -> {
-                return Long.valueOf(item.getCatalog1Id()) == v.getCatId();
+                return Long.valueOf(item.getCatalog1Id()) == v.getCatId(); //对应的父id
             }).collect(Collectors.toList());
             return collect;
-        }));//对应的父id
+        }));
         return map;
     }
 
