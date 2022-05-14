@@ -58,10 +58,10 @@ public class GulimallElasticsearchApplicationTests {
     }
 
     @Data
-    class User{
-      private String name;
-      private String gender;
-      private Integer age;
+    class User {
+        private String name;
+        private String gender;
+        private Integer age;
     }
 
 }

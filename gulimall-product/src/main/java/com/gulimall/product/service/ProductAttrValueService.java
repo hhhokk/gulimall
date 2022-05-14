@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.gulimall.common.utils.PageUtils;
 import com.gulimall.product.entity.ProductAttrValueEntity;
 
-import java.util.List;
 import java.util.Map;
 
 /**

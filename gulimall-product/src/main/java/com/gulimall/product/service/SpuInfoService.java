@@ -1,12 +1,9 @@
 package com.gulimall.product.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.gulimall.common.constant.ProductConstant;
 import com.gulimall.common.utils.PageUtils;
-import com.gulimall.product.entity.SpuInfoDescEntity;
 import com.gulimall.product.entity.SpuInfoEntity;
 import com.gulimall.product.vo.spusavevo.SpuSaveVo;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.Map;
 

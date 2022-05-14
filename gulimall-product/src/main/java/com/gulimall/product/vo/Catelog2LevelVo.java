@@ -24,7 +24,7 @@ public class Catelog2LevelVo {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Catelog3LevelVo{
+    public static class Catelog3LevelVo {
         private String catalog2Id;
         private String id;
         private String name;

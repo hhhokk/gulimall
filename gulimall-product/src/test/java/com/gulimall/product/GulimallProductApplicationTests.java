@@ -9,15 +9,14 @@ import com.gulimall.product.service.AttrService;
 import com.gulimall.product.service.BrandService;
 import com.gulimall.product.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.logging.stdout.StdOutImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.sound.midi.Soundbank;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,10 +35,21 @@ public class GulimallProductApplicationTests {
 
     @Autowired
     AttrService attrService;
+
+
+    @Autowired
+    RedissonClient redissonClient;
+
+
     @Test
-    public void testFindPath(){
+    public void redisson() {
+        System.out.println(redissonClient);
+    }
+
+    @Test
+    public void testFindPath() {
         Long[] catelogPath = service.findCatelogPath(225L);
-        log.info("{}",Arrays.asList(catelogPath));
+        log.info("{}", Arrays.asList(catelogPath));
     }
 
     @Test
@@ -50,7 +60,7 @@ public class GulimallProductApplicationTests {
 //        System.out.println("保存成功");
 
         List<BrandEntity> list = brandService.list(new QueryWrapper<BrandEntity>().eq("brand_id", 1L));
-        list.forEach(item ->{
+        list.forEach(item -> {
             System.out.println(item);
         });
 
@@ -77,13 +87,13 @@ public class GulimallProductApplicationTests {
         Integer[] ints = (Integer[]) list.toArray(new Integer[count]);
 
         for (Integer anInt : ints) {
-            System.out.print(anInt+" ");
+            System.out.print(anInt + " ");
         }
 
     }
 
     @Test
-    public void test2(){
+    public void test2() {
         ArrayList<String> list = new ArrayList<>();
         list.add("7");
         list.add("8");
@@ -92,15 +102,14 @@ public class GulimallProductApplicationTests {
         list.add("15");
         List<AttrEntity> attrEntities = attrService.listByIds(list);
 
-        List<SkuEsModel.Attrs> attrsList = attrEntities.stream().filter(attrEntity -> {
-            return attrEntity.getSearchType() != 0;
-        }).map(attrEntity ->{
-            SkuEsModel.Attrs attrs = new SkuEsModel.Attrs();
-            BeanUtils.copyProperties(attrEntity,attrs);
-            attrs.setAttrValue(attrEntity.getValueSelect());
-            return attrs;
-        }).collect(Collectors.toList());
-        System.out.println(attrsList.toString());
+        List<SkuEsModel.Attrs> attrsList = attrEntities.stream().filter(attrEntity -> attrEntity.getSearchType() != 0)
+                .map(attrEntity -> {
+                    SkuEsModel.Attrs attrs = new SkuEsModel.Attrs();
+                    BeanUtils.copyProperties(attrEntity, attrs);
+                    attrs.setAttrValue(attrEntity.getValueSelect());
+                    return attrs;
+                }).collect(Collectors.toList());
+        System.out.println(attrsList);
 
     }
 

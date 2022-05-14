@@ -1,9 +1,7 @@
 package com.gulimall.product.osstest;
 
-import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
-import com.aliyun.oss.OSSException;
 import org.junit.Test;
 
 import java.io.FileInputStream;
@@ -29,7 +27,7 @@ public class TestOss {
         String objectName = "2022/2/27/1.jpg";
         // 填写本地文件的完整路径，例如D:\\localpath\\examplefile.txt。
         // 如果未指定本地路径，则默认从示例程序所属项目对应本地路径中上传文件流。
-        String filePath= "C:\\Users\\zy051\\Pictures\\1.jpg";
+        String filePath = "C:\\Users\\zy051\\Pictures\\1.jpg";
 
         // 创建OSSClient实例。
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
@@ -38,7 +36,7 @@ public class TestOss {
             InputStream inputStream = new FileInputStream(filePath);
             // 创建PutObject请求。
             ossClient.putObject(bucketName, objectName, inputStream);
-        }  finally {
+        } finally {
             if (ossClient != null) {
                 ossClient.shutdown();
             }

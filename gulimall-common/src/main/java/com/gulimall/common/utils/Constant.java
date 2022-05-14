@@ -7,8 +7,9 @@
  */
 
 package com.gulimall.common.utils;
-import com.gulimall.common.validator.group.QcloudGroup;
+
 import com.gulimall.common.validator.group.AliyunGroup;
+import com.gulimall.common.validator.group.QcloudGroup;
 import com.gulimall.common.validator.group.QiniuGroup;
 
 import java.util.Optional;

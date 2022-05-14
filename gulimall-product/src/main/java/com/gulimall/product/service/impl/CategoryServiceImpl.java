@@ -9,9 +9,13 @@ import com.gulimall.common.utils.PageUtils;
 import com.gulimall.common.utils.Query;
 import com.gulimall.product.dao.CategoryDao;
 import com.gulimall.product.entity.CategoryEntity;
+import com.gulimall.product.service.CategoryBrandRelationService;
 import com.gulimall.product.service.CategoryService;
 import com.gulimall.product.vo.Catelog2LevelVo;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -26,7 +30,12 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
 
     @Autowired
+    CategoryBrandRelationService categoryBrandRelationService;
+    @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private RedissonClient redisson;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -109,16 +118,18 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     }
 
 
+    @Cacheable(value = {"category"}, key = "#root.method.name")
     @Override
     public List<CategoryEntity> getLevelOneCategory() {
         return baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
+
     }
 
     @Override
     public Map<String, List<Catelog2LevelVo>> getCatelogJson() {
         String catelogJson = redisTemplate.opsForValue().get("catelogJson");
         if (StringUtils.isEmpty(catelogJson)) {
-            return getCatelogJsonFromDbWithLock();
+            return getCatelogJsonFromDbWithRedissonLock();
         }
         System.out.println("命中缓存，查询redis~~~~~~");
         return JSON.parseObject(catelogJson, new TypeReference<Map<String, List<Catelog2LevelVo>>>() {
@@ -126,14 +137,34 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     }
 
-    public Map<String, List<Catelog2LevelVo>> getCatelogJsonFromDbWithLock() {
+    @Override
+    public void updateCascade(CategoryEntity category) {
+        this.updateById(category);
+        categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
+    }
+
+    public Map<String, List<Catelog2LevelVo>> getCatelogJsonFromDbWithRedissonLock() {
+        RLock lock = redisson.getLock("catelogJson-lock");
+        lock.lock();
+        Map<String, List<Catelog2LevelVo>> catelogJson;
+        try {
+            System.out.println("获取分布式成功~~~~~");
+            catelogJson = getCatelogJsonFromDBWithLocalLock();
+        } finally {
+            lock.unlock();
+        }
+        return catelogJson;
+
+    }
+
+    public Map<String, List<Catelog2LevelVo>> getCatelogJsonFromDbWithRedisLock() {
         String uuid = UUID.randomUUID().toString();
         Boolean lock = redisTemplate.opsForValue().setIfAbsent("lock", uuid, 30, TimeUnit.SECONDS);
         if (lock) {
             System.out.println("获取分布式成功~~~~~");
-            Map<String, List<Catelog2LevelVo>> catelogJsondata = null;
+            Map<String, List<Catelog2LevelVo>> catelogJsondata;
             try {
-                catelogJsondata = getCatelogJsonFromDBLocalLock();
+                catelogJsondata = getCatelogJsonFromDBWithLocalLock();
             } finally {
                 //            redisTemplate.delete("lock"); //删锁可能出现原子性问题
                 String script = "if redis.call('get',KEYS[1]) == ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
@@ -141,12 +172,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             }
             return catelogJsondata;
         } else {
-            return getCatelogJsonFromDbWithLock();//重新获取锁
+            return getCatelogJsonFromDbWithRedisLock();//重新获取锁
         }
 
     }
 
-    public Map<String, List<Catelog2LevelVo>> getCatelogJsonFromDBLocalLock() {
+    public Map<String, List<Catelog2LevelVo>> getCatelogJsonFromDBWithLocalLock() {
         synchronized (this) {
             String catelogJson = redisTemplate.opsForValue().get("catelogJson");
             if (!StringUtils.isEmpty(catelogJson)) {

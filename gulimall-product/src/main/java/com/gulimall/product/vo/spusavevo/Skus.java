@@ -1,7 +1,8 @@
 /**
-  * Copyright 2022 bejson.com 
-  */
+ * Copyright 2022 bejson.com
+ */
 package com.gulimall.product.vo.spusavevo;
+
 import lombok.Data;
 
 import java.math.BigDecimal;

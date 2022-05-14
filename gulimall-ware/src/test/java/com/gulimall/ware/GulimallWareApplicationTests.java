@@ -19,6 +19,7 @@ public class GulimallWareApplicationTests {
 
     @Autowired
     WareSkuService wareSkuService;
+
     @Test
     public void contextLoads() {
         List<String> skuIds = new ArrayList<>();
@@ -26,7 +27,7 @@ public class GulimallWareApplicationTests {
         skuIds.add("3");
         skuIds.add("4");
         List<WareSkuEntity> wareSkuEntities = skuIds.stream().map(skuId -> {
-            return wareSkuService.getOne(new QueryWrapper<WareSkuEntity>().eq("sku_id",skuId));
+            return wareSkuService.getOne(new QueryWrapper<WareSkuEntity>().eq("sku_id", skuId));
         }).collect(Collectors.toList());
         System.out.println(wareSkuEntities);
     }

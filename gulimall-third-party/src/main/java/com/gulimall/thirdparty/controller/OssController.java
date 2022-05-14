@@ -35,7 +35,7 @@ public class OssController {
     private String accessId;
 
     @RequestMapping("/oss/policy")
-    public R policy(){
+    public R policy() {
 
         String host = "https://" + bucket + "." + endpoint; // host的格式为 bucketname.endpoint
         // callbackUrl为上传回调服务器的URL，请将下面的IP和Port配置为您自己的真实信息。
@@ -72,6 +72,6 @@ public class OssController {
         } finally {
             ossClient.shutdown();
         }
-        return R.ok().put("data",respMap);
+        return R.ok().put("data", respMap);
     }
 }

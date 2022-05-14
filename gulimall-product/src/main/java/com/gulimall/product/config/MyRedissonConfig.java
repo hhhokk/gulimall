@@ -14,8 +14,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MyRedissonConfig {
 
-    @Bean(destroyMethod="shutdown")
-    public RedissonClient redisson(){
+    @Bean(destroyMethod = "shutdown")
+    public RedissonClient redisson() {
         Config config = new Config();
         config.useSingleServer().setAddress("redis://192.168.40.129:6379");
         RedissonClient redisson = Redisson.create(config);

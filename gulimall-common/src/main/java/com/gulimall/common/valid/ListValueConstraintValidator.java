@@ -9,7 +9,7 @@ import java.util.Set;
  * @author zy
  * @create 2022-03-01-0:02
  */
-public class ListValueConstraintValidator implements ConstraintValidator<ListValue,Integer> {
+public class ListValueConstraintValidator implements ConstraintValidator<ListValue, Integer> {
     private Set<Integer> set = new HashSet<>();
 
     @Override
@@ -21,8 +21,7 @@ public class ListValueConstraintValidator implements ConstraintValidator<ListVal
     }
 
     /**
-     *
-     * @param integer 需要校验的值
+     * @param integer                    需要校验的值
      * @param constraintValidatorContext
      * @return
      */

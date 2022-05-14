@@ -22,17 +22,17 @@ public class IndexController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping({"/","/index.html"})
-    public String indexPage(Model model){
+    @GetMapping({"/", "/index.html"})
+    public String indexPage(Model model) {
         //TODO 查出一级分类
         List<CategoryEntity> categoryEntityList = categoryService.getLevelOneCategory();
-        model.addAttribute("categorys",categoryEntityList);
+        model.addAttribute("categorys", categoryEntityList);
         return "index";
     }
 
     @ResponseBody
     @GetMapping({"/index/catalog.json"})
-    public Map<String, List<Catelog2LevelVo>> getCatelogJson(){
+    public Map<String, List<Catelog2LevelVo>> getCatelogJson() {
         Map<String, List<Catelog2LevelVo>> map = categoryService.getCatelogJson();
         return map;
 

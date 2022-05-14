@@ -29,7 +29,7 @@ public class SkuEsModel {
     private List<Attrs> attrs;
 
     @Data
-    public static class Attrs{
+    public static class Attrs {
         private Long attrId;
         private String attrName;
         private String attrValue;

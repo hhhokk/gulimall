@@ -14,9 +14,9 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 public class GulimallCorsConfiguration {
 
     @Bean
-    public CorsWebFilter corsWebFilter(){
+    public CorsWebFilter corsWebFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration corsConfiguration= new CorsConfiguration();
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
 
         //1、配置跨域
         corsConfiguration.addAllowedHeader("*");
@@ -24,7 +24,9 @@ public class GulimallCorsConfiguration {
         corsConfiguration.addAllowedOrigin("*");
         corsConfiguration.setAllowCredentials(true);
 
-        source.registerCorsConfiguration("/**",corsConfiguration);
+        source.registerCorsConfiguration("/**", corsConfiguration);
         return new CorsWebFilter(source);
-    };
+    }
+
+    ;
 }

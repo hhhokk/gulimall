@@ -1,6 +1,6 @@
 /**
-  * Copyright 2022 bejson.com 
-  */
+ * Copyright 2022 bejson.com
+ */
 package com.gulimall.common.to;
 
 import lombok.Data;

@@ -1,26 +1,24 @@
 package com.gulimall.ware.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gulimall.common.constant.WareConstant;
+import com.gulimall.common.utils.PageUtils;
+import com.gulimall.common.utils.Query;
+import com.gulimall.ware.dao.PurchaseDao;
 import com.gulimall.ware.entity.PurchaseDetailEntity;
+import com.gulimall.ware.entity.PurchaseEntity;
+import com.gulimall.ware.service.PurchaseService;
 import com.gulimall.ware.vo.MergeVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.gulimall.common.utils.PageUtils;
-import com.gulimall.common.utils.Query;
-
-import com.gulimall.ware.dao.PurchaseDao;
-import com.gulimall.ware.entity.PurchaseEntity;
-import com.gulimall.ware.service.PurchaseService;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @Service("purchaseService")
@@ -28,6 +26,7 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
 
     @Autowired
     private PurchaseDetailServiceImpl purchaseDetailService;
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<PurchaseEntity> page = this.page(
@@ -42,7 +41,7 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
     public PageUtils queryPageUnReceiveList(Map<String, Object> params) {
         IPage<PurchaseEntity> page = this.page(
                 new Query<PurchaseEntity>().getPage(params),
-                new QueryWrapper<PurchaseEntity>().eq("status",0).or().eq("status",1)
+                new QueryWrapper<PurchaseEntity>().eq("status", 0).or().eq("status", 1)
         );
 
         return new PageUtils(page);
@@ -52,7 +51,7 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
     @Override
     public void mergePurchase(MergeVo mergeVo) {
         Long purchaseId = mergeVo.getPurchaseId();
-        if(purchaseId == null){
+        if (purchaseId == null) {
             PurchaseEntity entity = new PurchaseEntity();
             entity.setCreateTime(new Date());
             entity.setUpdateTime(new Date());
@@ -85,13 +84,13 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
         List<PurchaseEntity> collect = ids.stream().map(id -> {
             PurchaseEntity purchaseEntity = this.getById(id);
             return purchaseEntity;
-        }).filter(item ->{
-            if(item.getStatus() == WareConstant.PurchaseStatusEnum.CRESTED.getCode() ||
-                    item.getStatus() == WareConstant.PurchaseStatusEnum.ASSIGNED.getCode()){
-                return  true;
+        }).filter(item -> {
+            if (item.getStatus() == WareConstant.PurchaseStatusEnum.CRESTED.getCode() ||
+                    item.getStatus() == WareConstant.PurchaseStatusEnum.ASSIGNED.getCode()) {
+                return true;
             }
             return false;
-        }).map(item ->{
+        }).map(item -> {
             item.setStatus(WareConstant.PurchaseStatusEnum.RECEIVE.getCode());
             item.setUpdateTime(new Date());
             return item;
@@ -101,8 +100,8 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
         this.updateBatchById(collect);
 
         //改变采购项目的状态
-        collect.forEach(item ->{
-            List<PurchaseDetailEntity> entities= purchaseDetailService.listDetailByPurchaseId(item.getId());
+        collect.forEach(item -> {
+            List<PurchaseDetailEntity> entities = purchaseDetailService.listDetailByPurchaseId(item.getId());
             List<PurchaseDetailEntity> detailEntityList = entities.stream().map(entity -> {
                 PurchaseDetailEntity detailEntity = new PurchaseDetailEntity();
                 detailEntity.setId(entity.getId());

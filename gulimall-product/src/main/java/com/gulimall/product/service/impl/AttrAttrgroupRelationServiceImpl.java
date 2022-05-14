@@ -1,19 +1,16 @@
 package com.gulimall.product.service.impl;
 
-import com.gulimall.product.entity.AttrEntity;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gulimall.common.utils.PageUtils;
 import com.gulimall.common.utils.Query;
-
 import com.gulimall.product.dao.AttrAttrgroupRelationDao;
 import com.gulimall.product.entity.AttrAttrgroupRelationEntity;
 import com.gulimall.product.service.AttrAttrgroupRelationService;
+import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 
 @Service("attrAttrgroupRelationService")
