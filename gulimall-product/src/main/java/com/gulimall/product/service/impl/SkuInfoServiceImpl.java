@@ -7,7 +7,11 @@ import com.gulimall.common.utils.PageUtils;
 import com.gulimall.common.utils.Query;
 import com.gulimall.product.dao.SkuInfoDao;
 import com.gulimall.product.entity.SkuInfoEntity;
-import com.gulimall.product.service.SkuInfoService;
+import com.gulimall.product.entity.SpuImagesEntity;
+import com.gulimall.product.entity.SpuInfoDescEntity;
+import com.gulimall.product.service.*;
+import com.gulimall.product.vo.SkuItemVo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -19,6 +23,20 @@ import java.util.Map;
 @Service("skuInfoService")
 public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> implements SkuInfoService {
 
+    @Autowired
+    private SpuImagesService imagesService;
+
+    @Autowired
+    private SkuInfoService skuInfoService;
+
+    @Autowired
+    private SpuInfoDescService spuInfoDescService;
+
+    @Autowired
+    private AttrGroupService groupService;
+
+    @Autowired
+    private SkuSaleAttrValueService attrValueService;
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<SkuInfoEntity> page = this.page(
@@ -80,6 +98,34 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
     public List<SkuInfoEntity> getSkuBySpuId(Long spuId) {
         List<SkuInfoEntity> list = this.list(new QueryWrapper<SkuInfoEntity>().eq("spu_id", spuId));
         return list;
+    }
+
+    @Override
+    public SkuItemVo getItemInfo(Long skuId) {
+
+        SkuItemVo skuItemVo = new SkuItemVo();
+
+//        skuItemVo.setHasStock();
+//        调用getHasStock订单服务查询是否还有库存
+
+        SkuInfoEntity skuInfoEntity = skuInfoService.getOne(new QueryWrapper<SkuInfoEntity>().eq("sku_id", skuId));
+        skuItemVo.setInfo(skuInfoEntity);
+
+        Long spuId = skuInfoEntity.getSpuId();
+        List<SpuImagesEntity> images = imagesService.getBySkuId(spuId);
+        skuItemVo.setImages(images);
+
+        Long catalogId = skuInfoEntity.getCatalogId();
+        SpuInfoDescEntity descEntity = spuInfoDescService.getOne(new QueryWrapper<SpuInfoDescEntity>().eq("spu_id", spuId));
+        skuItemVo.setDesp(descEntity);
+
+        //组合封装sku销售分组信息
+        List<SkuItemVo.SpuItemAttrGroupVo> vo =groupService.getAttrGroupWithAttrsBySpuIdAndCategoryId(spuId,catalogId);
+        skuItemVo.setGroupAttrs(vo);
+        //组合封装sku销售版本信息
+        List<SkuItemVo.SkuItemSaleAttrVo> attrValueVos= attrValueService.getSkuSaleAttrValueBySpuId(spuId);
+        skuItemVo.setSaleAttr(attrValueVos);
+        return skuItemVo;
     }
 
 }

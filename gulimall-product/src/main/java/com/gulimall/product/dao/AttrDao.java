@@ -2,7 +2,11 @@ package com.gulimall.product.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.gulimall.product.entity.AttrEntity;
+import com.gulimall.product.vo.SkuItemVo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 商品属性
@@ -14,4 +18,5 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface AttrDao extends BaseMapper<AttrEntity> {
 
+    List<SkuItemVo.SpuItemAttrGroupVo> getAttrGroupWithAttrsBySpuIdAndCategoryId(@Param("spuId") Long spuId, @Param("catalogId")Long catalogId);
 }

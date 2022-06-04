@@ -15,10 +15,13 @@ import com.gulimall.product.vo.Catelog2LevelVo;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -117,16 +120,59 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return paths;
     }
 
-
-    @Cacheable(value = {"category"}, key = "#root.method.name")
+    @Cacheable(value = "category", key = "#root.method.name")
     @Override
     public List<CategoryEntity> getLevelOneCategory() {
         return baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
 
     }
 
+    @Cacheable(value = "category", key = "#root.method.name")
     @Override
     public Map<String, List<Catelog2LevelVo>> getCatelogJson() {
+        List<CategoryEntity> categoryEntities = baseMapper
+                .selectList(new QueryWrapper<>(null));
+
+        //封装成三级分类vo
+        List<Catelog2LevelVo.Catelog3LevelVo> catelog3LevelVoList = categoryEntities.stream()
+                .filter(item -> item.getCatLevel() == 3L)
+                .map(item -> {
+                    Catelog2LevelVo.Catelog3LevelVo catelog3LevelVo = new Catelog2LevelVo.Catelog3LevelVo();
+                    catelog3LevelVo.setId(item.getCatId().toString());
+                    catelog3LevelVo.setCatalog2Id(item.getParentCid().toString());
+                    catelog3LevelVo.setName(item.getName());
+                    return catelog3LevelVo;
+                }).collect(Collectors.toList());
+
+        //封装成二级分类vo
+        List<Catelog2LevelVo> catelog2LevelVoList = categoryEntities.stream()
+                .filter(item -> item.getCatLevel() == 2L)
+                .map(item -> {
+                    ArrayList<Catelog2LevelVo.Catelog3LevelVo> catelog3LevelVosList = new ArrayList<>();
+                    for (Catelog2LevelVo.Catelog3LevelVo catelog3LevelVo : catelog3LevelVoList) {
+                        if (Long.valueOf(catelog3LevelVo.getCatalog2Id()).equals(item.getCatId())) {
+                            catelog3LevelVosList.add(catelog3LevelVo);
+                        }
+                    }
+                    Catelog2LevelVo catelog2LevelVo = new Catelog2LevelVo();
+                    catelog2LevelVo.setId(item.getCatId().toString());
+                    catelog2LevelVo.setCatalog1Id(item.getParentCid().toString());
+                    catelog2LevelVo.setName(item.getName());
+                    catelog2LevelVo.setCatalog3List(catelog3LevelVosList);
+
+                    return catelog2LevelVo;
+                }).collect(Collectors.toList());
+
+        //返回对应的map
+        Map<String, List<Catelog2LevelVo>> catelogJsonDB = categoryEntities.stream()
+                .filter(item -> item.getParentCid() == 0L)
+                .collect(Collectors.toMap(k -> k.getCatId().toString(), v -> catelog2LevelVoList.stream().filter(item -> {
+                    return Long.valueOf(item.getCatalog1Id()).equals(v.getCatId()); //对应的父id
+                }).collect(Collectors.toList())));
+        return catelogJsonDB;
+    }
+
+    public Map<String, List<Catelog2LevelVo>> getCatelogJson2() {
         String catelogJson = redisTemplate.opsForValue().get("catelogJson");
         if (StringUtils.isEmpty(catelogJson)) {
             return getCatelogJsonFromDbWithRedissonLock();
@@ -137,10 +183,16 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     }
 
+//    @CacheEvict(value = "{category}", key = "'getLevelOneCategory'")
+//    @Caching(evict = {
+//            @CacheEvict(value = "{category}", key = "'getLevelOneCategory'"),
+//            @CacheEvict(value = "{category}", key = "'getCatelogJson'")
+//    })
+    @CacheEvict(value = "category", allEntries = true)
+    @Transactional
     @Override
     public void updateCascade(CategoryEntity category) {
         this.updateById(category);
-        categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
     }
 
     public Map<String, List<Catelog2LevelVo>> getCatelogJsonFromDbWithRedissonLock() {
@@ -168,7 +220,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             } finally {
                 //            redisTemplate.delete("lock"); //删锁可能出现原子性问题
                 String script = "if redis.call('get',KEYS[1]) == ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
-                redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Arrays.asList("lock"), uuid);
+                redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Collections.singletonList("lock"), uuid);
             }
             return catelogJsondata;
         } else {

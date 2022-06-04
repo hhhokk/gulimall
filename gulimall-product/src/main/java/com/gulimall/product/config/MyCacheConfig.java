@@ -2,6 +2,7 @@ package com.gulimall.product.config;
 
 
 import com.alibaba.fastjson.support.spring.GenericFastJsonRedisSerializer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
@@ -15,10 +16,13 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  * @author zy
  * @create 2022-05-15-18:28
  */
-@EnableConfigurationProperties(CacheProperties.class)
+//@EnableConfigurationProperties(CacheProperties.class)
 @Configuration
 @EnableCaching
 public class MyCacheConfig {
+
+//    @Autowired
+//    CacheProperties cacheProperties;
 
     @Bean
     public RedisCacheConfiguration configuration(CacheProperties cacheProperties) {

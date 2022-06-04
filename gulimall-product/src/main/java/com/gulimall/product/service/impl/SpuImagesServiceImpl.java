@@ -47,4 +47,10 @@ public class SpuImagesServiceImpl extends ServiceImpl<SpuImagesDao, SpuImagesEnt
 
     }
 
+    @Override
+    public List<SpuImagesEntity> getBySkuId(Long spuId) {
+        List<SpuImagesEntity> images = baseMapper.selectList(new QueryWrapper<SpuImagesEntity>().eq("spu_id", spuId));
+        return images;
+    }
+
 }

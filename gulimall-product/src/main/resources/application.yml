@@ -22,7 +22,8 @@ spring:
     redis:
       time-to-live: 3600000 #设置缓存存活时间
       cache-null-values: true
-      key-prefix: CACHE_
+#      key-prefix:
+      use-key-prefix: true
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
@@ -37,4 +38,4 @@ server:
   port: 10000
 logging:
   level:
-    com.gulimall: error
+    com.gulimall: debug

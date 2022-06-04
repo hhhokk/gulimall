@@ -15,6 +15,27 @@
         <result property="catelogId" column="catelog_id"/>
         <result property="showDesc" column="show_desc"/>
     </resultMap>
+    <resultMap id="spuItemAttrGroupVo" type="com.gulimall.product.vo.SkuItemVo$SpuItemAttrGroupVo" >
+        <result property="groupName" column="group_name"/>
+        <collection property="baseAttrVos" ofType="com.gulimall.product.vo.SkuItemVo$SpuBaseAttrVo">
+            <result property="attrName" column="attr_name"/>
+            <result property="attrValue" column="attr_value"/>
+        </collection>
+    </resultMap>
+    <select id="getAttrGroupWithAttrsBySpuIdAndCategoryId"
+            resultMap="spuItemAttrGroupVo">
+        SELECT pav.spu_id,
+               ag.attr_group_name as group_name,
+               ag.attr_group_id,
+               aar.attr_id,
+               pav.attr_name,
+               pav.attr_value
+        FROM `pms_attr_group` as ag
+                 LEFT JOIN `pms_attr_attrgroup_relation` as aar on aar.attr_group_id = ag.attr_group_id
+                 LEFT join `pms_product_attr_value` as pav on pav.attr_id = aar.attr_id
+        where ag.catelog_id =#{catalogId} and pav.spu_id =#{spuId}
+
+    </select>
 
 
 </mapper>
