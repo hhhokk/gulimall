@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gulimall.common.utils.PageUtils;
 import com.gulimall.common.utils.Query;
 import com.gulimall.product.dao.SpuImagesDao;
+import com.gulimall.product.entity.SkuImagesEntity;
 import com.gulimall.product.entity.SpuImagesEntity;
 import com.gulimall.product.service.SpuImagesService;
 import org.springframework.stereotype.Service;
@@ -45,12 +46,6 @@ public class SpuImagesServiceImpl extends ServiceImpl<SpuImagesDao, SpuImagesEnt
             this.saveBatch(list);
         }
 
-    }
-
-    @Override
-    public List<SpuImagesEntity> getBySkuId(Long spuId) {
-        List<SpuImagesEntity> images = baseMapper.selectList(new QueryWrapper<SpuImagesEntity>().eq("spu_id", spuId));
-        return images;
     }
 
 }

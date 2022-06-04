@@ -2,6 +2,7 @@ package com.gulimall.product.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gulimall.common.utils.PageUtils;
+import com.gulimall.product.entity.SkuImagesEntity;
 import com.gulimall.product.entity.SpuImagesEntity;
 
 import java.util.List;
@@ -20,6 +21,5 @@ public interface SpuImagesService extends IService<SpuImagesEntity> {
 
     void saveImages(Long id, List<String> images);
 
-    List<SpuImagesEntity> getBySkuId(Long spuId);
 }
 

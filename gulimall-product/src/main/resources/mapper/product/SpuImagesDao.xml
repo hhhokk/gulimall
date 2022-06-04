@@ -7,7 +7,7 @@
     <resultMap type="com.gulimall.product.entity.SpuImagesEntity" id="spuImagesMap">
         <result property="id" column="id"/>
         <result property="spuId" column="spu_id"/>
-<!--        <result property="imgName" column="img_name"/> -->
+        <result property="imgName" column="img_name"/>
         <result property="imgUrl" column="img_url"/>
         <result property="imgSort" column="img_sort"/>
         <result property="defaultImg" column="default_img"/>

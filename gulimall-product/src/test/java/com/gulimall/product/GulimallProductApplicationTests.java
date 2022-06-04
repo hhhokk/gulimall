@@ -19,6 +19,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -41,6 +43,9 @@ public class GulimallProductApplicationTests {
 
     @Autowired
     AttrGroupService attrGroupService;
+
+    @Autowired
+    ThreadPoolExecutor threadPoolExecutor;
 
     @Autowired
     SkuSaleAttrValueService skuSaleAttrValueService;
@@ -128,5 +133,11 @@ public class GulimallProductApplicationTests {
         log.info("{}",vos);
     }
 
+    @Test
+    public void ThreadPoolExecutorTest(){
 
+        System.out.println(threadPoolExecutor.getKeepAliveTime(TimeUnit.SECONDS));
+        System.out.println(threadPoolExecutor.getMaximumPoolSize());
+        log.info("{}",threadPoolExecutor.getMaximumPoolSize());
+    }
 }

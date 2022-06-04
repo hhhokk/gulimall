@@ -1,5 +1,6 @@
 package com.gulimall.product.vo;
 
+import com.gulimall.product.entity.SkuImagesEntity;
 import com.gulimall.product.entity.SkuInfoEntity;
 import com.gulimall.product.entity.SpuImagesEntity;
 import com.gulimall.product.entity.SpuInfoDescEntity;
@@ -20,7 +21,7 @@ public class SkuItemVo {
 
     private SpuInfoDescEntity desp;
 
-    private List<SpuImagesEntity> images;
+    private List<SkuImagesEntity> images;
 
     private List<SkuItemSaleAttrVo> saleAttr;
 
