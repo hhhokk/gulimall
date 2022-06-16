@@ -135,9 +135,10 @@ public class GulimallProductApplicationTests {
 
     @Test
     public void ThreadPoolExecutorTest(){
-
-        System.out.println(threadPoolExecutor.getKeepAliveTime(TimeUnit.SECONDS));
-        System.out.println(threadPoolExecutor.getMaximumPoolSize());
-        log.info("{}",threadPoolExecutor.getMaximumPoolSize());
+        String code = String.valueOf(Math.random()*1000000).substring(2,6);
+        System.out.println(code);
+//        System.out.println(threadPoolExecutor.getKeepAliveTime(TimeUnit.SECONDS));
+//        System.out.println(threadPoolExecutor.getMaximumPoolSize());
+//        log.info("{}",threadPoolExecutor.getMaximumPoolSize());
     }
 }

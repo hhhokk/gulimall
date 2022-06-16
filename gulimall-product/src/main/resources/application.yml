@@ -38,4 +38,4 @@ server:
   port: 10000
 logging:
   level:
-    com.gulimall: debug
+    com.gulimall: error

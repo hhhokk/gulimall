@@ -2,8 +2,10 @@ package com.gulimall.thirdparty;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
+import com.gulimall.thirdparty.component.SmsComponent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -14,6 +16,9 @@ import java.io.InputStream;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class GulimallThirdPartyApplicationTests {
+
+    @Autowired
+    SmsComponent smsComponent;
 
     @Test
     public void contextLoads() throws FileNotFoundException {
@@ -44,6 +49,14 @@ public class GulimallThirdPartyApplicationTests {
             }
         }
 
+    }
+
+    @Test
+    public void test(){
+        String phone = "17582135365";
+//        smsComponent.send_SMS(phone);
+        Math.random();
+        System.out.println(String.valueOf(Math.random()*1000000).substring(0,6));
     }
 
 }
