@@ -1,4 +1,4 @@
-package com.gulimall.auth.vo;
+package com.gulimall.common.to;
 
 import lombok.Data;
 
