@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.gulimall.auth.utils.Auth2Utils;
 import com.gulimall.auth.feign.UserMemberService;
+import com.gulimall.common.constant.AuthServerConstant;
 import com.gulimall.common.to.MemberEntity;
 import com.gulimall.auth.vo.SocialMember;
 import com.gulimall.auth.vo.SocialUser;
@@ -88,9 +89,9 @@ public class OAuth2Controller {
 //            MemberEntity data = oauth2login.getData("data",new TypeReference<MemberEntity>(){});
             Map map = (HashMap)oauth2login.getData();
             MemberEntity data = JSON.parseObject(JSON.toJSONString(map), MemberEntity.class);
-            session.setAttribute("loginUser",data);
+            session.setAttribute(AuthServerConstant.LOGIN_USER,data);
 
-            System.out.println(data.toString());
+//            System.out.println(data.toString());
             return "redirect:" +Auth2Utils.INDEX_PAGE;
         } else {
             return "redirect:"+ Auth2Utils.LOGIN_PAGE;

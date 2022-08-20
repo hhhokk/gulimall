@@ -1,4 +1,4 @@
-package com.gulimall.auth.vo;
+package com.gulimall.common.vo;
 
 import lombok.Data;
 
@@ -84,5 +84,5 @@ public class SocialMember {
      * 社交账号ID
      */
     private String socialUid;
-
+    
 }

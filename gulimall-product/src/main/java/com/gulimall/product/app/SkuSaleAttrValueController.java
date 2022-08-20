@@ -6,8 +6,8 @@ import com.gulimall.product.entity.SkuSaleAttrValueEntity;
 import com.gulimall.product.service.SkuSaleAttrValueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
@@ -24,6 +24,11 @@ public class SkuSaleAttrValueController {
     @Autowired
     private SkuSaleAttrValueService skuSaleAttrValueService;
 
+
+    @GetMapping("/stringList/{skuId}")
+    public List<String> saleAtterValue(@PathVariable("skuId") Long skuId){
+        return skuSaleAttrValueService.getSaleAttrValue(skuId);
+    }
     /**
      * 列表
      */

@@ -7,6 +7,7 @@ import com.gulimall.auth.vo.UserLoginVo;
 import com.gulimall.auth.vo.UserRegisterVo;
 import com.gulimall.common.constant.AuthServerConstant;
 import com.gulimall.common.exception.BizCodeEnum;
+import com.gulimall.common.to.MemberEntity;
 import com.gulimall.common.utils.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
@@ -83,7 +85,6 @@ public class LoginController {
             redisTemplate.delete(AuthServerConstant.SMS_CODE_CACHE_PREFIX + vo.getPhone());
             R r = userMemberService.regist(vo);
             if (r.getCode() == 0) {
-
                 return "redirect:"+ Auth2Utils.LOGIN_PAGE;
             } else {
                 Map<String, String> errors = new HashMap<>();
@@ -101,10 +102,12 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public String login(UserLoginVo vo,RedirectAttributes attributes){
+    public String login(UserLoginVo vo, RedirectAttributes attributes, HttpSession session){
         R login = userMemberService.login(vo);
         if(login.getCode() == 0){
-            return "redirect:http://gulimall.com";
+            MemberEntity data = (MemberEntity) login.get("data");
+            session.setAttribute(AuthServerConstant.LOGIN_USER,data);
+            return "redirect:"+Auth2Utils.INDEX_PAGE;
         }
         Map<String, String> errors = new HashMap<>();
         errors.put("msg", "用户名和密码错误");

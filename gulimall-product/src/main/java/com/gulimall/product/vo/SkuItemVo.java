@@ -2,7 +2,6 @@ package com.gulimall.product.vo;
 
 import com.gulimall.product.entity.SkuImagesEntity;
 import com.gulimall.product.entity.SkuInfoEntity;
-import com.gulimall.product.entity.SpuImagesEntity;
 import com.gulimall.product.entity.SpuInfoDescEntity;
 import lombok.Data;
 
